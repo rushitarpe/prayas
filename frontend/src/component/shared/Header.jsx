@@ -20,7 +20,7 @@ const Header = () => {
             <Link to={"/"}> 
           <div className="flex items-center space-x-4 group">
             
-            <div className="relative transform transition-transform duration-300 ">
+            <div className="relative  transform transition-transform duration-300 ">
                 <img src={logo} alt="Logo" className="h-18 w-18"  />
             </div>
             <div className="flex items-center overflow-hidden">
