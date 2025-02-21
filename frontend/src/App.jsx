@@ -9,6 +9,7 @@ import About from './pages/About'
 import Tasks from './pages/Tasks'
 import Dashboard from './pages/Dashboard'
 import Contact from './pages/Contact'
+import Footer from './pages/Footer'
 
 
 const App = () => {
@@ -29,7 +30,7 @@ const App = () => {
 
 
       </Routes>
-      
+      <Footer />
       
       </BrowserRouter>
     </div>
