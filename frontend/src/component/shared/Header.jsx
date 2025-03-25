@@ -62,7 +62,7 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {[
-              { icon: <Link to='/'><Home className="w-5 h-5 inline gap-2" />  Home </Link>},
+              { icon:<Link to='/'><Home className="w-5 h-5 inline gap-2" />  Home </Link>},
               { icon:<Link to='/task'> <ClipboardList className="w-5 h-5 inline gap-2" /> Tasks </Link>},
               { icon:<Link to='/contact'> <Phone className="w-5 h-5 inline gap-2" /> Contact </Link> },
               { icon:<Link to='/about'><Users className="w-5 h-5 inline gap-2" /> About Us </Link>  }

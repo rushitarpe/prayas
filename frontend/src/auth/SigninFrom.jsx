@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInSuccess,signInFailure,signInStart } from '../redux/user/userslice';
 
 const Toast = ({ message, type }) => (
   <div className={`fixed top-4 right-4 flex items-center gap-2 px-4 py-3 rounded shadow-lg animate-in fade-in slide-in-from-top-4 ${
@@ -14,21 +16,14 @@ const Toast = ({ message, type }) => (
 const SigninForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState({});
+  
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-
-  const validateForm = () => {
-    let newErrors = {};
-    if (!formData.email) newErrors.email = "Email is required";
-    if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters long";
-    return newErrors;
-  };
+  const dispatch = useDispatch();
+  const { error: errormessage, loading } = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
   };
 
   const showToast = (message, type) => {
@@ -38,13 +33,8 @@ const SigninForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = validateForm();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    dispatch(signInStart());
 
-    setLoading(true);
     try {
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
@@ -55,17 +45,18 @@ const SigninForm = () => {
       
       if (!res.ok) {
         showToast(data.message || "Sign in failed. Please try again.", "error");
+        dispatch(signInFailure(data.message));
         return;
       }
       
       showToast("Sign in Successful..!!!", "success");
+      dispatch(signInSuccess(data));
       setTimeout(() => navigate("/"), 2000);
       
     } catch (error) {
       console.error('Error submitting form:', error);
       showToast("Something went wrong. Please try again.", "error");
-    } finally {
-      setLoading(false);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -99,7 +90,6 @@ const SigninForm = () => {
                   placeholder="Email address"
                   required
                 />
-                {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
               </div>
 
               <div className="relative">
@@ -122,7 +112,6 @@ const SigninForm = () => {
                 >
                   {showPassword ? <EyeOff className="h-5 w-5 text-white/60" /> : <Eye className="h-5 w-5 text-white/60" />}
                 </button>
-                {errors.password && <p className="text-red-400 text-sm">{errors.password}</p>}
               </div>
 
               <button
