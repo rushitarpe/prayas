@@ -1,0 +1,11 @@
+body {
+    background-color: #0f172a;  /* Dark navy background */
+  }
+  
+  .info-card {
+    background-color: #1e293b;  /* Slightly lighter background for cards */
+  }
+  
+  .status-closed {
+    background-color: rgba(31, 41, 55, 0.5);  /* Semi-transparent dark background for status badge */
+  }

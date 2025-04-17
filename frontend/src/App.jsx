@@ -10,6 +10,7 @@ import Tasks from './pages/Tasks'
 import Dashboard from './pages/Dashboard'
 import Contact from './pages/Contact'
 import Footer from './pages/Footer'
+import '/src/App.css' 
 
 
 const App = () => {

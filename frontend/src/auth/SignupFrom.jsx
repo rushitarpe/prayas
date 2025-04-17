@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import GoogleAuth from '../component/shared/GoogleAuth';
 
 const Toast = ({ message, type }) => (
   <div className={`fixed top-4 right-4 flex items-center gap-2 px-4 py-3 rounded shadow-lg animate-in fade-in slide-in-from-top-4 ${
@@ -183,6 +184,7 @@ const SignupForm = () => {
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>
+              <GoogleAuth/>
             </form>
 
             <p className="mt-6 text-center text-white/80">

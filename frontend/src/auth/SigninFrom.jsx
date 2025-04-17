@@ -3,6 +3,7 @@ import { Mail, Lock, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInSuccess,signInFailure,signInStart } from '../redux/user/userslice';
+import GoogleAuth from '../component/shared/GoogleAuth';
 
 const Toast = ({ message, type }) => (
   <div className={`fixed top-4 right-4 flex items-center gap-2 px-4 py-3 rounded shadow-lg animate-in fade-in slide-in-from-top-4 ${
@@ -121,7 +122,9 @@ const SigninForm = () => {
               >
                 {loading ? "Signing In..." : "Sign In"}
               </button>
+              <GoogleAuth/>
             </form>
+            
 
             <p className="mt-6 text-center text-white/80">
               Don't have an account? <Link to="/sign-up" className="text-blue-400 font-semibold hover:text-blue-300">Sign up</Link>
