@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard'
 import Contact from './pages/Contact'
 import Footer from './pages/Footer'
 import '/src/App.css' 
+import PrivateRoute from './component/shared/PrivateRoute'
 
 
 const App = () => {
@@ -27,8 +28,9 @@ const App = () => {
        <Route path="/about" element={<About />} />
        <Route path="/task" element={<Tasks />} />
        <Route path="/contact" element={<Contact />} />
+       <Route element={<PrivateRoute />}>
        <Route path="/dashboard" element={<Dashboard />} />
-
+       </Route>
 
       </Routes>
       <Footer />

@@ -3,14 +3,14 @@
 
 /* ===== Root Variables ===== */
 :root {
-  --bg-dark: #0f172a;               /* Main background */
-  --card-bg: #1e293b;               /* Card background */
-  --badge-bg: rgba(31, 41, 55, 0.5);/* Badge semi-transparent */
-  --text-primary: #cbd5e1;          /* Light text */
-  --text-secondary: #94a3b8;        /* Dimmed text */
-  --heading-color: #6366f1;         /* Indigo */
-  --accent: #06b6d4;                /* Cyan */
-  --border-color: #334155;          /* Card border */
+  --bg-dark: #0f172a;
+  --card-bg: #1e293b;
+  --badge-bg: rgba(31, 41, 55, 0.5);
+  --text-primary: #cbd5e1;
+  --text-secondary: #94a3b8;
+  --heading-color: #6366f1;
+  --accent: #06b6d4;
+  --border-color: #334155;
   --button-bg: #6366f1;
   --button-hover: #4f46e5;
   --button-text: #ffffff;
@@ -29,7 +29,7 @@ body {
 /* ===== Headings ===== */
 h1, h2, h3, h4 {
   font-family: 'Montserrat', sans-serif;
-  color: var(--heading-color);
+
   font-weight: 700;
 }
 
@@ -85,7 +85,8 @@ p {
 .rounded-xl {
   border-radius: 1rem;
 }
-/* Glowing border effect */
+
+/* ===== Glowing Border Effect ===== */
 @keyframes glow {
   0% {
     box-shadow: 0 0 5px 2px rgba(99, 102, 241, 0.7);
@@ -98,10 +99,11 @@ p {
   }
 }
 
-/* Apply glowing effect */
 .shadow-glow {
   animation: glow 1.5s infinite alternate;
 }
+
+/* ===== Fade In Animation ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -115,4 +117,48 @@ p {
 
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* ===== Dropdown Styling (No color overrides) ===== */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  width: 12rem;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.dropdown-menu ul {
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+.dropdown-menu li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: inherit; /* Keeps inherited text color */
+}
+
+.dropdown-menu li:hover {
+  background-color: rgba(255, 255, 255, 0.05); /* subtle hover effect */
+}
+
+.dropdown-menu li span {
+  display: block;
+  font-size: 0.8rem;
+  color: inherit; /* Keeps inherited text color */
+}
+
+.dropdown-menu .dropdown-divider {
+  border-top: 1px solid var(--border-color);
+  margin: 0.25rem 0;
 }
