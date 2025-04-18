@@ -53,9 +53,9 @@ function Footer() {
           1234 Street Name, City, Country
         </p>
 
-        <p className="text-gray-400 text-sm">Email: info@example.com</p>
+        <p className="text-gray-400 text-sm">Email: rushitarpe44@gmail.com</p>
 
-        <p className="text-gray-400 text-sm">Phone: +91 234 567 890</p>
+        <p className="text-gray-400 text-sm">Phone: +91 7498996055</p>
       </div>
     </div>
 
