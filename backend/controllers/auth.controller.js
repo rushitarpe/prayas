@@ -1,9 +1,7 @@
-import bcryptjs from "bcryptjs"
+import bcryptjs from 'bcryptjs';
 import User from '../models/user.model.js';
-import { errorHandler } from "../utils/error.js";
-import jwt from "jsonwebtoken"
-
-
+import { errorHandler } from '../utils/error.js';
+import jwt from 'jsonwebtoken';
 
 export const signup = async (req,res,next) => {
     const { username,email,password } = req.body
@@ -29,6 +27,7 @@ try{
    next(error)
 }
 }
+
 export const signin = async (req, res, next) => {
     const { email, password } = req.body
   
@@ -58,10 +57,9 @@ export const signin = async (req, res, next) => {
   
       res.status(200).cookie("access_token", token, { httpOnly: true }).json(rest)
     } catch (error) {
-      next(error)   
+      next(error)
     }
   }
-  
   export const google = async (req, res, next) => {
     const { email, name, profilePhotoUrl } = req.body
   
