@@ -4,15 +4,18 @@ import { useSelector } from 'react-redux';
 const DashboardProfile = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const profilePicRef = useRef();
-  const [previewUrl, setPreviewUrl] = useState(null);
-
+  const [imageFile, setImageFile] = useState(null);
+  const [imageFileUrl, setImageFileUrl] = useState(null);
+  
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
+    // console.log(file);
     if (file) {
-      setPreviewUrl(URL.createObjectURL(file));
+      setImageFile(file)
+      setImageFileUrl(URL.createObjectURL(file))
     }
   };
-
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 bg-black">
       <div className="mb-10 p-4 rounded-xl bg-gradient-to-br from-green-500/20 to-green-400/10 shadow-[0_0_25px_rgba(34,197,94,0.5)] text-center w-full max-w-4xl">
@@ -31,13 +34,12 @@ const DashboardProfile = () => {
             ref={profilePicRef}
             onChange={handleImageChange}
           />
-
           <div
             className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-green-400 cursor-pointer shadow-lg hover:shadow-green-400/50 transition-shadow"
             onClick={() => profilePicRef.current.click()}
           >
             <img
-              src={currentUser.profilePicture}
+              src={imageFileUrl || currentUser.profilePicture}
               alt="Profile"
               className="w-full h-full object-cover"
             />
