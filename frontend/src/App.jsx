@@ -12,6 +12,7 @@ import Contact from './pages/Contact'
 import Footer from './pages/Footer'
 import '/src/App.css' 
 import PrivateRoute from './component/shared/PrivateRoute'
+import CreatePost from './pages/CreatePost'
 
 
 const App = () => {
@@ -31,6 +32,10 @@ const App = () => {
        <Route element={<PrivateRoute />}>
        <Route path="/dashboard" element={<Dashboard />} />
        </Route>
+      <Route path="create-post" element={<CreatePost />} />
+
+
+
 
       </Routes>
       <Footer />

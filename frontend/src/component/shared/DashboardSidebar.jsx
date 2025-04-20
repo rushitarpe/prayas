@@ -3,11 +3,13 @@ import { FaHome, FaUser, FaUsers, FaPen, FaSignOutAlt } from 'react-icons/fa';
 import { BiMessageDetail } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
 import { signOutSuccess } from '../../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BsFillPostcardFill } from "react-icons/bs";
 
 const DashboardSidebar = () => {
+
     const dispatch = useDispatch(); 
+    const currentUser = useSelector((state) => state.user.currentUser); // Assuming you have a Redux store set up
      const handleSignout = async () => {
         try {
           const res = await fetch("/api/user/signout", {
@@ -30,24 +32,46 @@ const DashboardSidebar = () => {
      border-cyan-400 rounded-tr-[100px] rounded-br-[100px] shadow-[0_0_25px_#0ff] p-4 text-white flex flex-col justify-between absolute left-0 top-20 z-[1000]">
       <h2 className="text-xl font-bold text-center mb-6 text-cyan-400 [text-shadow:_0_0_10px_#0ff]">Dashboard</h2>
       <nav className="flex-1 flex flex-col gap-4">
-        <Link to="/dashboard?tab=dashboard" className="no-underline text-inherit">
+
+        {currentUser && currentUser.isAdmin &&(
+          <Link to="/dashboard?tab=dashboard" className="no-underline text-inherit">
           <NavItem icon={<FaHome />} label="MainDashboard" />
         </Link>
-        <Link to="/dashboard?tab=profile" className="no-underline text-inherit">
+
+        )}
+         <Link to="/dashboard?tab=profile" className="no-underline text-inherit">
           <NavItem icon={<FaUser />} label="Profile" />
         </Link>
-        <Link to="/dashboard?tab=users" className="no-underline text-inherit">
+        <Link to="/create-post" className="no-underline text-inherit">
+          <NavItem icon={<FaPen />} label=" Create Post" />
+        </Link>
+        <Link to="/dashboard?tab=posts" className="no-underline text-inherit">
+          <NavItem icon={<BiMessageDetail />} label=" Your Posts" />
+        </Link>
+{currentUser && currentUser.isAdmin &&(
+  <Link to="/dashboard?tab=users" className="no-underline text-inherit">
           <NavItem icon={<FaUsers />} label="All Users" />
         </Link>
-        <Link to="/dashboard?tab=posts" className="no-underline text-inherit">
-          <NavItem icon={<FaPen />} label=" Create Posts" />
-        </Link>
-        <Link to="/dashboard?tab=posts" className="no-underline text-inherit">
-          <NavItem icon={<BsFillPostcardFill />} label=" All Post" />
-        </Link>
-        <Link to="/dashboard?tab=comments" className="no-underline text-inherit">
-          <NavItem icon={<BiMessageDetail />} label="All Comments" />
-        </Link>
+          
+)}
+ {currentUser && currentUser.isAdmin &&(
+
+<Link to="/dashboard?tab=admin-posts" className="no-underline text-inherit">
+<NavItem icon={<BsFillPostcardFill />} label=" All Posts" />
+</Link> 
+)}
+  {currentUser && currentUser.isAdmin &&(
+
+<Link to="/dashboard?tab=comments" className="no-underline text-inherit">
+<NavItem icon={<BiMessageDetail />} label="All Comments" />
+</Link>
+
+  )}
+        
+       
+        
+        
+       
         <button 
           onClick={handleSignout}
           className="mt-auto p-2 text-sm bg-[#ff004f] text-white border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out hover:bg-[#e60045]"

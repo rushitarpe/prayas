@@ -7,6 +7,7 @@ import DashboardUsers from '../component/shared/DashboardUsers'
 import MainDashboard from '../component/shared/MainDashboard'
 import BottomNavBar from '../component/shared/BottomNavBar'
 import { useLocation } from 'react-router-dom'
+import DashBoardAdminPost from '../component/shared/DashBoardAdminPost'
 const Dashboard = () => {
 const location =useLocation()
   const [tab, setTab] = useState("");
@@ -33,6 +34,11 @@ const location =useLocation()
 
       {/* news articles */}
       {tab === "posts" && <DashboardPosts />}
+
+      {/* for the admin Post */}
+
+      {tab === "admin-posts" && <DashBoardAdminPost />}
+
 
       {/* users */}
       {tab === "users" && <DashboardUsers />}

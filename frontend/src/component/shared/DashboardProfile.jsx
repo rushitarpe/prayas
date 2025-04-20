@@ -20,7 +20,7 @@ import Slide from '@mui/material/Slide';
 import Button from '@mui/material/Button';
 
 const DashboardProfile = () => {
-  const { currentUser } = useSelector((state) => state.user || { currentUser: null });
+  const { currentUser ,error,loading } = useSelector((state) => state.user || { currentUser: null });
   const profilePicRef = useRef();
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
@@ -242,9 +242,11 @@ const DashboardProfile = () => {
           </div>
           <button
             type="submit"
+            disabled={loading}
             className="bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition shadow-md shadow-green-400/20"
-          >
-            Update Profile
+          >{
+            loading ? ("Updating...") : ("Update Profile")
+          }
           </button>
         </form>
       </div>
