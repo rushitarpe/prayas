@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Home, ClipboardList, Phone, Users, Menu, X, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { signOutSuccess } from '../../redux/user/userSlice';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { currentUser } = useSelector((state) => state.user || { currentUser: null });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dispatch = useDispatch();
   const dropdownRef = useRef(null);
 
   const handleSearchSubmit = (e) => {
@@ -19,8 +21,23 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleLogout = () => {
-    console.log('Logging out...');
+  const handleLogout = async () => {
+     try {
+          const res = await fetch("/api/user/signout", {
+            method: "POST",
+          });
+    
+          const data = await res.json();
+    
+          if (!res.ok) {
+            console.log(data.message);
+          } else {
+            dispatch(signOutSuccess());
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      
     setIsDropdownOpen(false);
   };
 

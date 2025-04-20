@@ -12,6 +12,12 @@ import {
 import { getFilePreview, uploadFile } from "../../lib/appwrite/uploadImage"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Slide from '@mui/material/Slide';
+import Button from '@mui/material/Button';
 
 const DashboardProfile = () => {
   const { currentUser } = useSelector((state) => state.user || { currentUser: null });
@@ -21,10 +27,14 @@ const DashboardProfile = () => {
   const [formData, setFormData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState({ open: false, severity: 'info', message: '' });
+  const [openDialog, setOpenDialog] = useState(false);
   const dispatch = useDispatch();
 
+  const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+
   useEffect(() => {
-    // Initialize image URL from currentUser if available
     if (currentUser && currentUser.profilePicture) {
       setImageFileUrl(currentUser.profilePicture);
     }
@@ -99,24 +109,35 @@ const DashboardProfile = () => {
     }
   };
 
-  const handleDeleteUser = async () => {
+  const handleOpenDialog = (e) => {
+    e.preventDefault();
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = (e) => {
+    e.preventDefault();
+    setOpenDialog(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    setOpenDialog(false);
     try {
       dispatch(deleteUserStart());
-
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
         method: "DELETE",
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         dispatch(deleteUserFailure(data.message));
+        showToast('error', data.message || 'Failed to delete user.');
       } else {
         dispatch(deleteUserSuccess());
+        showToast('success', 'Account deleted successfully.');
       }
     } catch (error) {
       console.log(error);
       dispatch(deleteUserFailure(error.message));
+      showToast('error', 'An error occurred while deleting the account.');
     }
   };
 
@@ -138,7 +159,6 @@ const DashboardProfile = () => {
     }
   };
 
-  // Create a fallback avatar element instead of using an image URL
   const ProfileAvatar = ({ username }) => {
     const initial = username ? username.charAt(0).toUpperCase() : 'U';
     return (
@@ -157,7 +177,6 @@ const DashboardProfile = () => {
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 shadow-[0_0_30px_rgba(34,197,94,0.4)] rounded-2xl p-4 sm:p-6 gap-8 border border-green-600/20 transition-shadow hover:shadow-[0_0_45px_rgba(34,197,94,0.6)]">
-        {/* Profile Picture Section */}
         <div className="flex flex-col items-center gap-4">
           <input
             type="file"
@@ -188,7 +207,6 @@ const DashboardProfile = () => {
           <p className="text-sm text-gray-300">Click to change photo</p>
         </div>
 
-        {/* Form Section */}
         <form className="flex flex-col gap-4 w-full md:w-2/3" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -203,7 +221,6 @@ const DashboardProfile = () => {
             name="email"
             placeholder="Email"
             defaultValue={currentUser?.email || ''}
-            // disabled
             className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             onChange={handleChange}
           />
@@ -235,7 +252,7 @@ const DashboardProfile = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-4xl mt-6">
         <div className="px-6 py-3 rounded-xl bg-gradient-to-br from-red-900/40 via-black to-red-900/40 shadow-[0_0_20px_rgba(239,68,68,0.4)] border border-red-600 text-center">
           <button 
-            onClick={handleDeleteUser}
+            onClick={handleOpenDialog}
             className="text-red-500 font-semibold text-sm hover:underline hover:text-red-400 transition"
           >
             Delete
@@ -251,6 +268,29 @@ const DashboardProfile = () => {
         </div>
       </div>
 
+      <Dialog
+        open={openDialog}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleCloseDialog}
+        aria-describedby="delete-confirmation-description"
+      >
+        <DialogTitle className="text-red-500 font-bold text-lg">Delete Account</DialogTitle>
+        <DialogContent>
+          <p id="delete-confirmation-description" className="text-sm text-black dark:text-black">
+            Are you absolutely sure you want to delete your account? This action cannot be undone!
+          </p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar open={toast.open} autoHideDuration={3000} onClose={handleCloseToast} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseToast} severity={toast.severity} sx={{ width: '100%' }}>
           {toast.message}
@@ -261,4 +301,3 @@ const DashboardProfile = () => {
 };
 
 export default DashboardProfile;
-
