@@ -8,29 +8,25 @@ import {
   updateFailure,
   updateStart,
   updateSuccess,
-} from '../../redux/user/userSlice';
-import { getFilePreview, uploadFile } from '../../lib/appwrite/uploadImage';
+} from "../../redux/user/userSlice";
+import { getFilePreview, uploadFile } from "../../lib/appwrite/uploadImage"
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
 const DashboardProfile = () => {
-  const dispatch = useDispatch();
-  const { currentUser, loading } = useSelector((state) => state.user);
+  const { currentUser } = useSelector((state) => state.user || { currentUser: null });
   const profilePicRef = useRef();
-
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
+  const [formData, setFormData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState({ open: false, severity: 'info', message: '' });
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (currentUser) {
-      setFormData({
-        username: currentUser.username || '',
-        email: currentUser.email || '',
-        password: '',
-      });
+    // Initialize image URL from currentUser if available
+    if (currentUser && currentUser.profilePicture) {
+      setImageFileUrl(currentUser.profilePicture);
     }
   }, [currentUser]);
 
@@ -39,7 +35,7 @@ const DashboardProfile = () => {
   };
 
   const handleCloseToast = () => {
-    setToast((prev) => ({ ...prev, open: false }));
+    setToast({ ...toast, open: false });
   };
 
   const handleImageChange = (e) => {
@@ -51,90 +47,106 @@ const DashboardProfile = () => {
   };
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const uploadImage = async () => {
     if (!imageFile) return currentUser?.profilePicture || '';
+
     try {
       const uploadedFile = await uploadFile(imageFile);
-      return getFilePreview(uploadedFile.$id);
+      const profilePictureUrl = getFilePreview(uploadedFile.$id);
+      return profilePictureUrl;
     } catch (error) {
-      console.error('Image upload error:', error);
       showToast('error', 'Image upload failed. Please try again!');
+      console.log("Image upload failed: ", error);
       return currentUser?.profilePicture || '';
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(updateStart());
 
     try {
+      dispatch(updateStart());
       const profilePicture = await uploadImage();
-      const updateProfile = { ...formData, profilePicture };
+
+      const updateProfile = {
+        ...formData,
+        profilePicture,
+      };
 
       const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(updateProfile),
       });
 
       const data = await res.json();
-      if (!res.ok || data.success === false) {
-        dispatch(updateFailure(data.message));
-        return showToast('error', data.message || 'Update failed!');
-      }
 
-      dispatch(updateSuccess(data));
-      showToast('success', 'Profile updated successfully!');
+      if (data.success === false) {
+        showToast('error', 'Update user failed. Please try again!');
+        dispatch(updateFailure(data.message));
+      } else {
+        dispatch(updateSuccess(data));
+        showToast('success', 'User updated successfully.');
+      }
     } catch (error) {
+      showToast('error', 'Update user failed. Please try again!');
       dispatch(updateFailure(error.message));
-      showToast('error', 'Update failed. Please try again!');
     }
   };
 
   const handleDeleteUser = async () => {
-    dispatch(deleteUserStart());
     try {
+      dispatch(deleteUserStart());
+
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
+
       const data = await res.json();
 
       if (!res.ok) {
         dispatch(deleteUserFailure(data.message));
-        return showToast('error', data.message || 'Delete failed!');
+      } else {
+        dispatch(deleteUserSuccess());
       }
-
-      dispatch(deleteUserSuccess());
-      showToast('success', 'Account deleted successfully!');
     } catch (error) {
+      console.log(error);
       dispatch(deleteUserFailure(error.message));
-      showToast('error', 'Failed to delete user.');
     }
   };
 
   const handleSignout = async () => {
     try {
-      const res = await fetch('/api/user/signout', { method: 'POST' });
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+
       const data = await res.json();
 
       if (!res.ok) {
-        return showToast('error', data.message || 'Sign out failed!');
+        console.log(data.message);
+      } else {
+        dispatch(signOutSuccess());
       }
-
-      dispatch(signOutSuccess());
-      showToast('success', 'Signed out successfully!');
     } catch (error) {
-      showToast('error', 'Failed to sign out.');
+      console.log(error);
     }
   };
 
-  if (!currentUser) {
-    return <div className="text-white text-center mt-10">Loading user profile...</div>;
-  }
+  // Create a fallback avatar element instead of using an image URL
+  const ProfileAvatar = ({ username }) => {
+    const initial = username ? username.charAt(0).toUpperCase() : 'U';
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-700">
+        <span className="text-3xl font-bold text-green-400">{initial}</span>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 bg-black">
@@ -144,7 +156,8 @@ const DashboardProfile = () => {
         </h1>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 shadow-[0_0_30px_rgba(34,197,94,0.4)] rounded-2xl p-4 sm:p-6 gap-8 border border-green-600/20">
+      <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 shadow-[0_0_30px_rgba(34,197,94,0.4)] rounded-2xl p-4 sm:p-6 gap-8 border border-green-600/20 transition-shadow hover:shadow-[0_0_45px_rgba(34,197,94,0.6)]">
+        {/* Profile Picture Section */}
         <div className="flex flex-col items-center gap-4">
           <input
             type="file"
@@ -154,52 +167,53 @@ const DashboardProfile = () => {
             onChange={handleImageChange}
           />
           <div
-            className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-green-400 cursor-pointer shadow-lg hover:shadow-green-400/50 bg-gray-800"
+            className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-green-400 cursor-pointer shadow-lg hover:shadow-green-400/50 transition-shadow relative bg-gray-800"
             onClick={() => profilePicRef.current.click()}
           >
-            {imageFileUrl || currentUser.profilePicture ? (
+            {(imageFileUrl || currentUser?.profilePicture) ? (
               <img
-                src={imageFileUrl || currentUser.profilePicture}
+                src={imageFileUrl || currentUser?.profilePicture}
                 alt="Profile"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentNode.querySelector('.fallback-avatar')?.classList.remove('hidden');
+                }}
               />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-green-400 text-3xl font-bold">
-                {currentUser.username?.charAt(0).toUpperCase()}
-              </div>
-            )}
+            ) : null}
+            <div className={`fallback-avatar ${(imageFileUrl || currentUser?.profilePicture) ? 'hidden' : ''}`}>
+              <ProfileAvatar username={currentUser?.username} />
+            </div>
           </div>
           <p className="text-sm text-gray-300">Click to change photo</p>
         </div>
 
+        {/* Form Section */}
         <form className="flex flex-col gap-4 w-full md:w-2/3" onSubmit={handleSubmit}>
           <input
             type="text"
-            id="username"
+            name="username"
             placeholder="Username"
-            value={formData.username}
+            defaultValue={currentUser?.username || ''}
+            className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             onChange={handleChange}
-            className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3"
-            disabled={loading}
           />
           <input
             type="email"
-            id="email"
+            name="email"
             placeholder="Email"
-            value={formData.email}
+            defaultValue={currentUser?.email || ''}
+            // disabled
+            className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             onChange={handleChange}
-            className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3"
-            disabled={loading}
           />
           <div className="relative">
             <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
+              type={showPassword ? "text" : "password"}
+              name="password"
               placeholder="Password"
-              value={formData.password}
+              className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 w-full"
               onChange={handleChange}
-              className="bg-gray-900 text-white border border-gray-600 rounded-lg p-3 pr-10 w-full"
-              disabled={loading}
             />
             <button
               type="button"
@@ -211,41 +225,33 @@ const DashboardProfile = () => {
           </div>
           <button
             type="submit"
-            className="bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition disabled:opacity-50"
-            disabled={loading}
+            className="bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition shadow-md shadow-green-400/20"
           >
-            {loading ? 'Updating...' : 'Update Profile'}
+            Update Profile
           </button>
         </form>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-4xl mt-6">
-        <div className="px-6 py-3 rounded-xl bg-gradient-to-br from-red-900/40 to-red-900/40 border border-red-600 text-center">
-          <button
+        <div className="px-6 py-3 rounded-xl bg-gradient-to-br from-red-900/40 via-black to-red-900/40 shadow-[0_0_20px_rgba(239,68,68,0.4)] border border-red-600 text-center">
+          <button 
             onClick={handleDeleteUser}
-            className="text-red-500 font-semibold hover:underline"
-            disabled={loading}
+            className="text-red-500 font-semibold text-sm hover:underline hover:text-red-400 transition"
           >
             Delete
           </button>
         </div>
-        <div className="px-6 py-3 rounded-xl bg-gradient-to-br from-red-900/40 to-red-900/40 border border-red-600 text-center">
-          <button
+        <div className="px-6 py-3 rounded-xl bg-gradient-to-br from-red-900/40 via-black to-red-900/40 shadow-[0_0_20px_rgba(239,68,68,0.4)] border border-red-600 text-center">
+          <button 
             onClick={handleSignout}
-            className="text-red-500 font-semibold hover:underline"
-            disabled={loading}
+            className="text-red-500 font-semibold text-sm hover:underline hover:text-red-400 transition"
           >
             Sign Out
           </button>
         </div>
       </div>
 
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={3000}
-        onClose={handleCloseToast}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
+      <Snackbar open={toast.open} autoHideDuration={3000} onClose={handleCloseToast} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseToast} severity={toast.severity} sx={{ width: '100%' }}>
           {toast.message}
         </Alert>
@@ -255,3 +261,4 @@ const DashboardProfile = () => {
 };
 
 export default DashboardProfile;
+
