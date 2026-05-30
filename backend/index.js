@@ -7,6 +7,7 @@ import userRoutes from './routes/user.route.js';
 import postRoutes from './routes/post.route.js';
 import taskRoutes from './routes/task.route.js';
 import commentRoutes from './routes/comment.route.js';
+import statsRoutes from './routes/stats.route.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -41,6 +42,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/comment", commentRoutes);
+app.use("/api/stats", statsRoutes);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

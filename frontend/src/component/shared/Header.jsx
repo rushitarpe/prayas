@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Home as HomeIcon, ClipboardList, Phone, Users, Menu, X, Search, BookOpen } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { signOutSuccess } from '../../redux/user/userSlice';
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { currentUser } = useSelector((state) => state.user || { currentUser: null });
@@ -16,7 +17,13 @@ const Header = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    console.log('Search query:', searchQuery);
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return;
+    if (currentUser) {
+      navigate(`/dashboard?tab=tasks&search=${encodeURIComponent(trimmed)}`);
+    } else {
+      navigate(`/sign-in`);
+    }
   };
 
   const handleDropdownToggle = () => {

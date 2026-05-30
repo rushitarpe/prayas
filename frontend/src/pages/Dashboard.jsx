@@ -29,6 +29,7 @@ const Dashboard = () => {
   // Tasks states
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     status: 'all',
     priority: 'all',
@@ -90,10 +91,14 @@ const Dashboard = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get('tab');
+    const searchFromUrl = urlParams.get('search');
     if (tabFromUrl) {
       setTab(tabFromUrl);
     } else {
       setTab('dashboard');
+    }
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
     }
   }, [location.search]);
 
@@ -228,9 +233,17 @@ const Dashboard = () => {
               <TaskFilter
                 onFilterChange={setFilters}
                 currentFilters={filters}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
               />
               <TaskList
-                tasks={tasks}
+                tasks={searchQuery.trim()
+                  ? tasks.filter(t => 
+                      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                    )
+                  : tasks
+                }
                 loading={loadingTasks}
                 onDelete={handleDeleteTrigger}
                 onStatusToggle={handleStatusToggle}
