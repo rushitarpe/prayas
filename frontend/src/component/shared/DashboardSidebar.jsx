@@ -1,16 +1,27 @@
 import React from 'react';
-import { FaHome, FaUser, FaUsers, FaPen, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaUser, FaUsers, FaPen, FaSignOutAlt, FaClipboardList, FaGlobe } from 'react-icons/fa';
 import { BiMessageDetail } from 'react-icons/bi';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { signOutSuccess } from '../../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { BsFillPostcardFill } from "react-icons/bs";
+import { useTranslation } from 'react-i18next';
 
 const DashboardSidebar = () => {
-
+    const { t } = useTranslation();
     const dispatch = useDispatch(); 
-    const currentUser = useSelector((state) => state.user.currentUser); // Assuming you have a Redux store set up
-     const handleSignout = async () => {
+    const location = useLocation();
+    const currentUser = useSelector((state) => state.user.currentUser);
+    
+    // Helper to check active tab
+    const getActiveTab = () => {
+      const urlParams = new URLSearchParams(location.search);
+      return urlParams.get('tab') || '';
+    };
+
+    const activeTab = getActiveTab();
+
+    const handleSignout = async () => {
         try {
           const res = await fetch("/api/user/signout", {
             method: "POST",
@@ -27,74 +38,124 @@ const DashboardSidebar = () => {
           console.log(error);
         }
       };
+
   return (
-    <aside className="w-[300px] h-[80vh] bg-black border-r-4
-     border-cyan-400 rounded-tr-[100px] rounded-br-[100px] shadow-[0_0_25px_#0ff] p-4 text-white flex flex-col justify-between absolute left-0 top-20 z-[1000]">
-      <h2 className="text-xl font-bold text-center mb-6 text-cyan-400 [text-shadow:_0_0_10px_#0ff]">Dashboard</h2>
-      <nav className="flex-1 flex flex-col gap-4">
+    <aside className="fixed left-0 top-16 bottom-0 w-[280px] z-40 bg-gray-950/85 backdrop-blur-2xl border-r border-gray-800/60 p-6 flex flex-col justify-between shadow-2xl transition-all duration-300">
+      <div className="flex flex-col gap-6 flex-1">
+        {/* Brand/Subtitle */}
+        <div className="px-3 py-1 border-b border-gray-800/60 pb-4">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            {t('dashboard.title')}
+          </h2>
+        </div>
 
-        {currentUser && currentUser.isAdmin &&(
-          <Link to="/dashboard?tab=dashboard" className="no-underline text-inherit">
-          <NavItem icon={<FaHome />} label="MainDashboard" />
-        </Link>
-
-        )}
-         <Link to="/dashboard?tab=profile" className="no-underline text-inherit">
-          <NavItem icon={<FaUser />} label="Profile" />
-        </Link>
-        <Link to="/create-post" className="no-underline text-inherit">
-          <NavItem icon={<FaPen />} label=" Create Post" />
-        </Link>
-        <Link to="/dashboard?tab=posts" className="no-underline text-inherit">
-          <NavItem icon={<BiMessageDetail />} label=" Your Posts" />
-        </Link>
-{currentUser && currentUser.isAdmin &&(
-  <Link to="/dashboard?tab=users" className="no-underline text-inherit">
-          <NavItem icon={<FaUsers />} label="All Users" />
-        </Link>
+        <nav className="flex flex-col gap-2">
+          {currentUser && (
+            <Link to="/dashboard?tab=dashboard" className="no-underline text-inherit">
+              <NavItem 
+                icon={<FaHome className="w-4 h-4" />} 
+                label={t('dashboard.mainDashboard')} 
+                isActive={activeTab === 'dashboard'}
+              />
+            </Link>
+          )}
           
-)}
- {currentUser && currentUser.isAdmin &&(
+          <Link to="/dashboard?tab=profile" className="no-underline text-inherit">
+            <NavItem 
+              icon={<FaUser className="w-4 h-4" />} 
+              label={t('common.profile')} 
+              isActive={activeTab === 'profile'}
+            />
+          </Link>
 
-<Link to="/dashboard?tab=admin-posts" className="no-underline text-inherit">
-<NavItem icon={<BsFillPostcardFill />} label=" All Posts" />
-</Link> 
-)}
-  {currentUser && currentUser.isAdmin &&(
+          <Link to="/dashboard?tab=tasks" className="no-underline text-inherit">
+            <NavItem 
+              icon={<FaClipboardList className="w-4 h-4" />} 
+              label={t('dashboard.myTasks')} 
+              isActive={activeTab === 'tasks'}
+            />
+          </Link>
 
-<Link to="/dashboard?tab=comments" className="no-underline text-inherit">
-<NavItem icon={<BiMessageDetail />} label="All Comments" />
-</Link>
+          <Link to="/feed" className="no-underline text-inherit">
+            <NavItem 
+              icon={<FaGlobe className="w-4 h-4" />} 
+              label={t('common.feed')} 
+              isActive={location.pathname === '/feed'}
+            />
+          </Link>
 
-  )}
-        
-       
-        
-        
-       
-        <button 
-          onClick={handleSignout}
-          className="mt-auto p-2 text-sm bg-[#ff004f] text-white border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out hover:bg-[#e60045]"
-        >
-          <FaSignOutAlt className="mr-2" /> Sign Out
-        </button>
-      </nav>
+          <Link to="/create-post" className="no-underline text-inherit">
+            <NavItem 
+              icon={<FaPen className="w-4 h-4" />} 
+              label={t('dashboard.createPost')} 
+              isActive={location.pathname === '/create-post'}
+            />
+          </Link>
+
+          <Link to="/dashboard?tab=posts" className="no-underline text-inherit">
+            <NavItem 
+              icon={<BiMessageDetail className="w-4 h-4" />} 
+              label={t('dashboard.yourPosts')} 
+              isActive={activeTab === 'posts'}
+            />
+          </Link>
+
+          {currentUser && currentUser.isAdmin && (
+            <div className="border-t border-gray-800/60 my-2 pt-2">
+              <span className="block px-3 text-[10px] font-bold uppercase tracking-wider text-gray-550 mb-2">
+                Admin Panel
+              </span>
+              <div className="flex flex-col gap-2">
+                <Link to="/dashboard?tab=users" className="no-underline text-inherit">
+                  <NavItem 
+                    icon={<FaUsers className="w-4 h-4" />} 
+                    label={t('dashboard.allUsers')} 
+                    isActive={activeTab === 'users'}
+                  />
+                </Link>
+
+                <Link to="/dashboard?tab=admin-posts" className="no-underline text-inherit">
+                  <NavItem 
+                    icon={<BsFillPostcardFill className="w-4 h-4" />} 
+                    label={t('dashboard.allPosts')} 
+                    isActive={activeTab === 'admin-posts'}
+                  />
+                </Link>
+
+                <Link to="/dashboard?tab=comments" className="no-underline text-inherit">
+                  <NavItem 
+                    icon={<BiMessageDetail className="w-4 h-4" />} 
+                    label={t('dashboard.allComments')} 
+                    isActive={activeTab === 'comments'}
+                  />
+                </Link>
+              </div>
+            </div>
+          )}
+        </nav>
+      </div>
+      
+      <button 
+        onClick={handleSignout}
+        className="w-full mt-auto p-3 text-sm font-semibold bg-rose-600/10 hover:bg-rose-600 text-rose-450 hover:text-white rounded-xl flex items-center justify-center gap-2 border border-rose-500/20 transition-all duration-300 active:scale-95 shadow-md shadow-rose-950/10"
+      >
+        <FaSignOutAlt className="w-4 h-4" /> 
+        <span>{t('common.signOut')}</span>
+      </button>
     </aside>
   );
 };
 
-const NavItem = ({ icon, label }) => {
-  const [isHovered, setHovered] = React.useState(false);
-
+const NavItem = ({ icon, label, isActive }) => {
   return (
     <div
-      className={`flex items-center gap-3 text-base p-2 cursor-pointer rounded-lg transition-all duration-300 ease-in-out ${
-        isHovered ? 'bg-[#0ff1] translate-x-1 shadow-[0_0_10px_#0ff]' : 'bg-transparent'
+      className={`flex items-center gap-3 text-sm font-semibold p-3 cursor-pointer rounded-xl transition-all duration-300 ease-in-out ${
+        isActive 
+          ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/25 border border-purple-500/30 text-white shadow-lg shadow-purple-950/20' 
+          : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
       }`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
-      {icon}
+      <span className={isActive ? 'text-cyan-400' : 'text-gray-400'}>{icon}</span>
       <span>{label}</span>
     </div>
   );
